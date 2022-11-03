@@ -1,0 +1,115 @@
+package homework;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+//报名入学接口
+interface ISignUp{
+    // 打印输出结果
+    public void print();
+    // 检查是否有 stuType对应的班级名额
+    // 如果没有剩余名额，请返回 false ，否则学生将报名进入该班级并返回 true
+    public boolean addStudent (int stuType);
+    // 解析命令行输入的参数（格式），如文档描述
+    public static IParams parse() throws Exception{
+        Scanner scanner = new Scanner(System.in);
+        String str1 = scanner.nextLine();
+        String str2 = scanner.nextLine();
+        String[] ArrayStr1 =str1.split("[^A-Za-z0-9]+");
+        String[] ArrayStr2 =str2.split("[^A-Za-z0-9]+");
+        IParams iParams = new IParams() {
+            @Override
+            public int getBig() {
+                return Integer.parseInt(ArrayStr2[1]);
+            }
+
+            @Override
+            public int getMedium() {
+                return Integer.parseInt(ArrayStr2[2]);
+            }
+
+            @Override
+            public int getSmall() {
+                return Integer.parseInt(ArrayStr2[3]);
+            }
+
+            @Override
+            public ArrayList<Integer> getPlanSignUp() {
+                ArrayList<Integer> arrayList = new ArrayList<Integer>();
+                for (int i = 4; i < ArrayStr2.length; i++) {
+                    arrayList.add(Integer.parseInt(ArrayStr2[i]));
+                }
+                return arrayList;
+            }
+        };
+        return iParams;
+    };
+}
+interface IParams {
+    // 获取大班名额
+    public int getBig();
+    // 获取中班名额
+    public int getMedium();
+    // 获取小班名额
+    public int getSmall();
+    // 获取入学序列，例如 [1 2 2 3] 表示依次报名入学一名大班、中班、中班、小班学生
+    public ArrayList<Integer> getPlanSignUp ();
+}
+
+public class SchoolSystem implements ISignUp {
+    int big;
+    int medium;
+    int small;
+    int length;
+    String[] judge;
+
+    public SchoolSystem(int big, int medium, int small) {
+        this.big = big;
+        this.medium = medium;
+        this.small = small;
+        length = 1;
+        judge = new String[100];
+        judge[0] = "null";
+    }
+
+    public static void main(String[] args) throws Exception {
+        IParams params = ISignUp.parse();//SchoolSystem.parse();
+        SchoolSystem sc = new SchoolSystem(params.getBig(), params.getMedium(), params.getSmall());
+        ArrayList<Integer> plan = params.getPlanSignUp();
+        for (int i = 0; i < plan.size(); i++) {
+            sc.addStudent(plan.get(i));
+        }
+        sc.print();
+    }
+
+    @Override
+    public void print() {
+        System.out.print("[");
+        for(int i =0;i<length;i++){
+            if(i!=length-1) {
+                System.out.print(judge[i]+",");
+            }else{
+                System.out.print(judge[i]);
+            }
+        }
+        System.out.print("]");
+    }
+
+    @Override
+    public boolean addStudent(int stuType) {
+        if(stuType==1&&this.big!=0){
+            big--;
+            judge[length++] = "true";
+            return true;
+        }else if(stuType==2&&this.medium!=0){
+            medium--;
+            judge[length++] = "true";
+            return true;
+        }else if(stuType==3 && this.small!=0){
+            small--;
+            judge[length++] = "true";
+            return true;
+        }
+        judge[length++] = "false";
+        return false;
+    }
+}
